@@ -13,6 +13,8 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.detector.ContinuousHoldDetector;
 
+import java.util.Vector;
+
 
 /**
  * Created by Mrmenezes on 09/04/2015.
@@ -36,12 +38,15 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
     private Map map;
     private int dificuldade;
     private int colidMax;
+    public boolean colidTotal = false;
     private boolean movendo = false ;
+    private Vector<PixelPerfectAnimatedSprite> nSpriteTail;
 
-    public Sprits (int dificuldade_, Map mapa,int indexAnimate_,Scene mScene_, float pX, float pY, PixelPerfectTiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+    public Sprits (Vector<PixelPerfectAnimatedSprite> nSpriteTail_,int dificuldade_, Map mapa,int indexAnimate_,Scene mScene_, float pX, float pY, PixelPerfectTiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
         super(pX, pY, pTiledTextureRegion,pVertexBufferObjectManager );
         //final PhysicsHandler physicsHandler = new PhysicsHandler(this);
         //this.registerUpdateHandler(physicsHandler);
+        this.nSpriteTail = nSpriteTail_;
         this.mHoldDetector = new HoldDetector(this);
         this.mHoldDetector.setEnabled(true);
         this.indexAnimate = indexAnimate_;
@@ -112,6 +117,17 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
 
 
     }
+    public void colidindo(){
+        int cont = 0;
+        colidTotal = false;
+        for (int a = 0; a < nSpriteTail.indexOf(nSpriteTail.lastElement()) + 1; a++) {
+            if(nSpriteTail.get(a) == this){
+                cont++;
+
+            }
+        }
+        if (colidMax==cont)colidTotal=true;else colidTotal=false;
+    }
 
     public void MovendoOutros(boolean movendo){
        if(movendo){
@@ -174,7 +190,7 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
                     flipped = !flipped;
                     testeflip = false;
                 }
-
+                colidindo();
                 break;
             case TouchEvent.ACTION_MOVE:
                 if (!movendo) {
@@ -206,6 +222,7 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
                         testeflip=false;
                     //}
                 }
+                colidindo();
                 break;
 
             default:

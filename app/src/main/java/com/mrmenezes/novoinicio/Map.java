@@ -55,9 +55,9 @@ public class Map {
         for (int s = 0;s<index.length;s++) {
             // mSprite[s] = new Sprits(this,index[s], mScene, 80 + (80 * s), 600 , pTiledTextureRegion, pVertexBufferObjectManager);
             if(index[s]>63)
-                nSprite.addElement( new  Sprits(dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion2, pVertexBufferObjectManager));
+                nSprite.addElement( new  Sprits(nSpriteTail,dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion2, pVertexBufferObjectManager));
             else
-                nSprite.addElement( new  Sprits(dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion1, pVertexBufferObjectManager));
+                nSprite.addElement( new  Sprits(nSpriteTail,dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion1, pVertexBufferObjectManager));
 
         }
 
@@ -103,19 +103,16 @@ public class Map {
     }
 
     public void upClick(){
-        for (int a = 0; a < nSpriteTail.indexOf(nSpriteTail.lastElement()) + 1; a++) {
-            textTail.get(a).setColor(Color.RED);
-            for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
-                if(nSpriteTail.get(a).collidesWith(nSprite.get(b))){
-                    textTail.get(a).setColor(Color.CYAN);
 
-                }
-            }
+        textCollision.setText("Perdeu");
+
+        for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
+            if (!((Sprits) this.nSprite.get(b)).colidTotal)return;
         }
-
-    if( textTail.get(13).getColor()==Color.CYAN){
         textCollision.setText("Ganhou");
-    }
+
+
+
     }
 
 
