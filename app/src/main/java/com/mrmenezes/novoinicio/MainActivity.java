@@ -2,6 +2,8 @@ package com.mrmenezes.novoinicio;
 
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 
 
@@ -21,9 +23,13 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegionFactory;
+
+import android.os.Bundle;
 import android.util.Log;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends SimpleBaseGameActivity {
@@ -32,23 +38,38 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     private Camera mCamera;
     private Scene mScene;
-    private BitmapTextureAtlas mBitmapTextureAtlas1,mBitmapTextureAtlas2,mBitmapTextureAtlas3, mFontTexture;//o bitmap que receberá o Sprite
+    private BitmapTextureAtlas mBitmapTextureAtlas1,mBitmapTextureAtlas2, mFontTexture;
     private Font mFont;
-    private PixelPerfectTiledTextureRegion mFaceTextureRegion1,mFaceTextureRegion2,mFaceTextureRegion3;
-    private Map map;
+    private PixelPerfectTiledTextureRegion mFaceTextureRegion1,mFaceTextureRegion2;
+
+    private void startLoadPage(){
+        Intent playGame = new Intent(this, HelloService.class);
+        ArrayList<BitmapTextureAtlas> arrayBTA = new ArrayList<BitmapTextureAtlas>();
+        Bundle mBundle = new Bundle();
+        mBundle.putParcelableArrayList("key",arrayBTA);
+        playGame.putExtras(mBundle);
+        startActivity(playGame);
+
+
+
+    }
+    private void stopLoadPage(){
+
+
+    }
 
     @Override
     protected void onCreateResources() {
+
+
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
         PixelPerfectTextureRegionFactory.setAssetBasePath("gfx/");
         this.mFontTexture = new BitmapTextureAtlas( mEngine.getTextureManager(),256, 256);
-//this.mFontTexture,Typeface.BOLD,48,true,Color.BLACK
 
         this.mFont = new Font(this.getFontManager(),this.mFontTexture,Typeface.create(Typeface.DEFAULT, Typeface.BOLD),48,true,Color.RED);
 
         this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
         this.mEngine.getFontManager().loadFont(this.mFont);
-        //Firebase.setAndroidContext(this);
 
         this.mBitmapTextureAtlas1 = new BitmapTextureAtlas( this.getTextureManager(),2048, 2048);
         this.mBitmapTextureAtlas2 = new BitmapTextureAtlas( this.getTextureManager(),2048, 2048);
@@ -57,9 +78,9 @@ public class MainActivity extends SimpleBaseGameActivity {
         this.mFaceTextureRegion1 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas1,getAssets(),"pn00.png",0,0,8,8,0);
         this.mFaceTextureRegion2 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas2,getAssets(),"pn22.png",0,0,8,5,0);
 
+
         this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas2);
         this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas1);
-
 
 
     }
@@ -73,7 +94,7 @@ public class MainActivity extends SimpleBaseGameActivity {
         int[][] matriz = {{0,0,0,0,0,0},{1,1,1,0,0,0},{1,1,1,1,1,1},{0,0,1,1,1,1},{0,0,1,1,1,0},{0,0,0,0,0,0}};
         //int[][] matriz = {{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
         //int[][] matriz = {{0,0,0,0,0,0},{1,1,1,0,0,0},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
-        map = new Map(mFont, Sprits.NORMAL,mScene,list,matriz,this.mFaceTextureRegion1,this.mFaceTextureRegion2, getVertexBufferObjectManager());
+        Map map = new Map(mFont, Sprits.NORMAL,mScene,list,matriz,this.mFaceTextureRegion1,this.mFaceTextureRegion2, getVertexBufferObjectManager());
 
 
 
@@ -85,8 +106,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-
-        // Define our mCamera object
+        //this.startLoadPage();
         mCamera = new Camera( WIDTH/2, 0,WIDTH, HEIGHT);
         EngineOptions engineOptions = new EngineOptions(true,
                 ScreenOrientation.PORTRAIT_FIXED, new

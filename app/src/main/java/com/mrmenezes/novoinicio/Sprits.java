@@ -20,7 +20,8 @@ import java.util.Vector;
  * Created by Mrmenezes on 09/04/2015.
  */
 public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorListener,IOnSceneTouchListener {
-    public int indexAnimate;
+    private int indexAnimate;
+    private int iAnimate;
 
     public static int NORMAL = 1;
     public static int HARDCORE = 2;
@@ -44,8 +45,7 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
 
     public Sprits (Vector<PixelPerfectAnimatedSprite> nSpriteTail_,int dificuldade_, Map mapa,int indexAnimate_,Scene mScene_, float pX, float pY, PixelPerfectTiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
         super(pX, pY, pTiledTextureRegion,pVertexBufferObjectManager );
-        //final PhysicsHandler physicsHandler = new PhysicsHandler(this);
-        //this.registerUpdateHandler(physicsHandler);
+
         this.nSpriteTail = nSpriteTail_;
         this.mHoldDetector = new HoldDetector(this);
         this.mHoldDetector.setEnabled(true);
@@ -58,10 +58,14 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
         this.mScene.setOnSceneTouchListener(this);
         this.mScene.registerTouchArea(this);
         this.mScene.attachChild(this);
-        if(indexAnimate_>63)
+        if(indexAnimate_>63){
             this.setCurrentTileIndex(indexAnimate_ - 64);
-        else
+            this.iAnimate = indexAnimate_-64;
+        }
+        else{
             this.setCurrentTileIndex(indexAnimate_);
+            this.iAnimate = indexAnimate_;
+        }
 
         switch (indexAnimate_) {
 
@@ -107,9 +111,6 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
         }
 
 
-
-        this.colidMax = 0;
-
         this.map = mapa;
 
         this.dificuldade = dificuldade_;
@@ -117,16 +118,16 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
 
 
     }
-    public void colidindo(){
+    public boolean colidindo(){
         int cont = 0;
         colidTotal = false;
         for (int a = 0; a < nSpriteTail.indexOf(nSpriteTail.lastElement()) + 1; a++) {
-            if(nSpriteTail.get(a) == this){
+            if(nSpriteTail.get(a).collidesWith(this)){
                 cont++;
 
             }
         }
-        if (colidMax==cont)colidTotal=true;else colidTotal=false;
+        if (colidMax==cont)return colidTotal=true;else  return colidTotal=false;
     }
 
     public void MovendoOutros(boolean movendo){
@@ -148,56 +149,46 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
         switch (pSceneTouchEvent.getAction() & MotionEvent.ACTION_MASK) {
 
             case TouchEvent.ACTION_DOWN:
-                //if(this.getPixelPerfectMask().isSolid(Math.round(pSceneTouchEvent.getX()-this.getX()),Math.round(pSceneTouchEvent.getY()-this.getY()))){
 
                 if (!movendo) {
                     this.map.Movendo(this,true);
                     this.movendo = true;
                 }
-                   //Log.e(" Clicou",""+this.mZIndex);
                     mDownX = pSceneTouchEvent.getX();
-                    mDownY = pSceneTouchEvent.getY();
-                    isOnClick = true;
-                //}
+                mDownY = pSceneTouchEvent.getY();
+                isOnClick = true;
                 break;
             case TouchEvent.ACTION_CANCEL:
-               // Log.e(" Cancelou",""+this.indexAnimate);
                 if (movendo) {
                     this.map.Movendo(this,false);
                     this.movendo = false;
-                }
-                if (testeflip){
-                   if (flipped) this.setCurrentTileIndex(this.getCurrentTileIndex()+4);else this.setCurrentTileIndex(this.getCurrentTileIndex()-4);
-                    flipped = !flipped;
-                    testeflip=false;
                 }
             case TouchEvent.ACTION_UP:
+                this.colidindo();
                 this.map.upClick();
-                //Log.e(" DesClicou", "" + this.indexAnimate);
                 if (movendo) {
                     this.map.Movendo(this,false);
                     this.movendo = false;
                 }
-                if (isOnClick) {
-                    if(indexAnimate+3==this.getCurrentTileIndex())
-                        this.setCurrentTileIndex(indexAnimate);
-                    else
-                        this.setCurrentTileIndex(this.getCurrentTileIndex()+1);
+                int aumento = 6;
+                int zero=4;
+                if (flipped){ aumento =2; zero =0;}
 
+                if (isOnClick) {
+                    if(this.iAnimate+aumento<this.getCurrentTileIndex()) {
+                        this.setCurrentTileIndex(this.iAnimate+zero);
+
+                    }else {
+                        this.setCurrentTileIndex(this.getCurrentTileIndex() + 1);
+
+                    }
                 }
-                if (testeflip) {
-                   if(flipped) this.setCurrentTileIndex(this.getCurrentTileIndex()+4);else this.setCurrentTileIndex(this.getCurrentTileIndex()-4);
-                    flipped = !flipped;
-                    testeflip = false;
-                }
-                colidindo();
                 break;
             case TouchEvent.ACTION_MOVE:
                 if (!movendo) {
                     this.map.Movendo(this,true);
                     this.movendo = true;
                 }
-               // if(this.getPixelPerfectMask().isSolid(Math.round(pSceneTouchEvent.getX()-this.getX()),Math.round(pSceneTouchEvent.getY()-this.getY()))){
                 switch(dificuldade){
                     case 1:
                         this.setPosition((Math.round((pSceneTouchEvent.getX() - this.getWidth()/2)/32)*32), Math.round((pSceneTouchEvent.getY()- this.getHeight()/2)/32)*32);
@@ -211,46 +202,34 @@ public class Sprits extends PixelPerfectAnimatedSprite implements IHoldDetectorL
                 }
 
 
-                    if ((isOnClick) && (Math.abs(mDownX - pSceneTouchEvent.getX()) > SCROLL_THRESHOLD || Math.abs(mDownY - pSceneTouchEvent.getY()) > SCROLL_THRESHOLD)) {
+                if ((isOnClick) && (Math.abs(mDownX - pSceneTouchEvent.getX()) > SCROLL_THRESHOLD || Math.abs(mDownY - pSceneTouchEvent.getY()) > SCROLL_THRESHOLD)) {
 
-                        isOnClick = false;
-                    }
-                    if (testeflip){
-                        if (flipped) this.setCurrentTileIndex(this.getCurrentTileIndex()+4);else this.setCurrentTileIndex(this.getCurrentTileIndex()-4);
-
-                        flipped = !flipped;
-                        testeflip=false;
-                    //}
+                    isOnClick = false;
                 }
-                colidindo();
+
                 break;
 
             default:
-                this.map.upClick();
-               // Log.e(" Default",""+this.indexAnimate);
+
                 if (movendo) {
                     this.map.Movendo(this,false);
                     this.movendo = false;
                 }
-                if (testeflip){
-                  if (flipped) this.setCurrentTileIndex(this.getCurrentTileIndex()+4);else this.setCurrentTileIndex(this.getCurrentTileIndex()-4);
-                    flipped = !flipped;
-                    testeflip=false;
-                }
+
                 break;
         }
          continuousHoldDetector.onTouchEvent(pSceneTouchEvent);
         return true;
     }
-   @Override
-   public void onHoldStarted(HoldDetector pHoldDetector, int pPointerID,float pHoldX, float pHoldY) {
-       //if(this.getPixelPerfectMask().isSolid(Math.round(pHoldX-this.getX()),Math.round(pHoldY-this.getY()))){
+    @Override
+    public void onHoldStarted(HoldDetector pHoldDetector, int pPointerID,float pHoldX, float pHoldY) {
         isOnClick = false;
         if (flipped) this.setCurrentTileIndex(this.getCurrentTileIndex()+4);else this.setCurrentTileIndex(this.getCurrentTileIndex()-4);
         flipped = !flipped;
 
 
-       }//}
+
+    }
 
     @Override
     public void onHold(HoldDetector pHoldDetector, long pHoldTimeMilliseconds,int pPointerID, float pHoldX, float pHoldY) {

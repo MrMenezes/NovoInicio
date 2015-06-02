@@ -1,14 +1,12 @@
 package com.mrmenezes.novoinicio;
 import android.util.Log;
 
-import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.text.Text;
 import org.andengine.extension.collisions.entity.sprite.PixelPerfectAnimatedSprite;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
 
 import java.util.Vector;
 
@@ -38,13 +36,10 @@ public class Map {
         for (int j = 0;j<6;j++) {
             for (int i = 0; i < 6; i++) {
             if(this.mat[j][i] == 1){
-                //mSpriteTail[cont] = new AnimatedSprite(80 + (64 * i), 80 + (64 * j), pTiledTextureRegion, pVertexBufferObjectManager);
 
                 nSpriteTail.addElement(new PixelPerfectAnimatedSprite(240+(64 * j)-48, 512 - (64 * i) , pTiledTextureRegion1, pVertexBufferObjectManager));
                 mScene.attachChild(nSpriteTail.get(cont));
                 nSpriteTail.get(cont++).setCurrentTileIndex(1);
-                             //final PhysicsHandler physicsHandler = new PhysicsHandler(mSpriteTail[cont]);
-                    //mSpriteTail[cont].registerUpdateHandler(physicsHandler);
               }
             }
         }
@@ -53,17 +48,15 @@ public class Map {
 
        nSprite   = new Vector<PixelPerfectAnimatedSprite>();
         for (int s = 0;s<index.length;s++) {
-            // mSprite[s] = new Sprits(this,index[s], mScene, 80 + (80 * s), 600 , pTiledTextureRegion, pVertexBufferObjectManager);
-            if(index[s]>63)
-                nSprite.addElement( new  Sprits(nSpriteTail,dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion2, pVertexBufferObjectManager));
+            if(index[s]>63) {
+                nSprite.addElement( new Sprits(nSpriteTail,dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion2, pVertexBufferObjectManager));
+            }
             else
                 nSprite.addElement( new  Sprits(nSpriteTail,dificuldade_,this,index[s], mScene, 240+(96*s)-48, 128 , pTiledTextureRegion1, pVertexBufferObjectManager));
 
         }
 
 
-        //this.nSprite = mSprite;
-        //this.nSpriteTail = mSpriteTail;
         this.indext = index;
         textCollision = new Text(240, 0, mFont, "Perdendo",pVertexBufferObjectManager);
         mScene.attachChild(textCollision);
@@ -75,28 +68,7 @@ public class Map {
         }
 
         this.textTail = idtextTail;
-       /* mScene.registerUpdateHandler(new IUpdateHandler() {
-            @Override
-            public void reset() { }
 
-            @Override
-            public void onUpdate(final float pSecondsElapsed) {
-            for (int a = 0; a < nSpriteTail.indexOf(nSpriteTail.lastElement()) + 1; a++) {
-                    textTail.get(a).setColor(Color.RED);
-                    for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
-                        if(nSpriteTail.get(a).collidesWith(nSprite.get(b))){
-                            textTail.get(a).setColor(Color.CYAN);
-
-                        }
-                    }
-                }
-
-
-            }
-
-
-
-        });*/
 
 
 
@@ -104,8 +76,7 @@ public class Map {
 
     public void upClick(){
 
-        textCollision.setText("Perdeu");
-
+        textCollision.setText("Perdendo");
         for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
             if (!((Sprits) this.nSprite.get(b)).colidTotal)return;
         }
