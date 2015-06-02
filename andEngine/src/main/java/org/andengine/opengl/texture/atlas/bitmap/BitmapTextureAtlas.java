@@ -18,6 +18,8 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -26,7 +28,7 @@ import android.opengl.GLUtils;
  * @author Nicolas Gramlich
  * @since 14:55:02 - 08.03.2010
  */
-public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> {
+public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> implements Parcelable {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -188,7 +190,17 @@ public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> 
 		}
 	}
 
-	// ===========================================================
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+    }
+
+    // ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
 }
