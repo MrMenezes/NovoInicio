@@ -28,7 +28,7 @@ import android.os.Parcelable;
  * @author Nicolas Gramlich
  * @since 14:55:02 - 08.03.2010
  */
-public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> implements Parcelable {
+public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -190,15 +190,7 @@ public class BitmapTextureAtlas extends TextureAtlas<IBitmapTextureAtlasSource> 
 		}
 	}
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
+ 
 
     // ===========================================================
 	// Inner and Anonymous Classes

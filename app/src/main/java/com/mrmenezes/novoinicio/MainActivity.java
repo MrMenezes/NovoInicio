@@ -16,6 +16,8 @@ import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
 
@@ -26,6 +28,8 @@ import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectText
 
 import android.os.Bundle;
 import android.util.Log;
+
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 
@@ -38,30 +42,27 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     private Camera mCamera;
     private Scene mScene;
-    private BitmapTextureAtlas mBitmapTextureAtlas1,mBitmapTextureAtlas2, mFontTexture;
+    private BitmapTextureAtlas mBitmapTextureAtlas1,mBitmapTextureAtlas2,mBitmapTextureAtlas3, mFontTexture;
     private Font mFont;
     private PixelPerfectTiledTextureRegion mFaceTextureRegion1,mFaceTextureRegion2;
-
-    private void startLoadPage(){
-        Intent playGame = new Intent(this, HelloService.class);
-        ArrayList<BitmapTextureAtlas> arrayBTA = new ArrayList<BitmapTextureAtlas>();
-        Bundle mBundle = new Bundle();
-        mBundle.putParcelableArrayList("key",arrayBTA);
-        playGame.putExtras(mBundle);
-        startActivity(playGame);
+    private TiledTextureRegion mFaceTextureRegion3;
 
 
-
-    }
-    private void stopLoadPage(){
-
-
-    }
 
     @Override
     protected void onCreateResources() {
+        BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+        this.mBitmapTextureAtlas3 = new BitmapTextureAtlas( this.getTextureManager(),256, 2048);
+        this.mFaceTextureRegion3 =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas3,getAssets(),"png0.png",0,0,1,8);
+        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas3);
 
+        this.mFontTexture = new BitmapTextureAtlas( mEngine.getTextureManager(),256, 256);
+        this.mFont = new Font(this.getFontManager(),this.mFontTexture,Typeface.create(Typeface.DEFAULT, Typeface.BOLD),48,true,Color.WHITE);
+        this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
+        this.mEngine.getFontManager().loadFont(this.mFont);
 
+    }
+    protected void loadResources() {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
         PixelPerfectTextureRegionFactory.setAssetBasePath("gfx/");
         this.mFontTexture = new BitmapTextureAtlas( mEngine.getTextureManager(),256, 256);
@@ -87,6 +88,16 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     @Override
     protected Scene onCreateScene() {
+        mScene = new Scene();
+        mScene.setBackground(new Background(0f, 0f, 0f));
+        AnimatedSprite pAnime = new AnimatedSprite((WIDTH/2),HEIGHT/2,mFaceTextureRegion3,getVertexBufferObjectManager());
+        pAnime.setScale(0.5f);
+        mScene.attachChild(pAnime);
+        pAnime.animate(300);
+        Text textCollision = new Text(WIDTH/2, (HEIGHT/2)+90, mFont, "Carregando",getVertexBufferObjectManager());
+        mScene.attachChild(textCollision);
+        return mScene;
+        /*
         this.mEngine.registerUpdateHandler( new FPSLogger());
         mScene = new Scene();
         mScene.setBackground(new Background(1f, 1f, 1f));
@@ -98,7 +109,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 
 
-        return mScene;
+        return mScene;*/
     }
 
 

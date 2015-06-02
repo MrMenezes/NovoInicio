@@ -11,6 +11,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.text.Text;
+import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -26,9 +27,9 @@ public class LoadPage extends SimpleBaseGameActivity {
     private static final int HEIGHT = 800;
     private Camera mCamera;
     private Scene mScene;
-    private BitmapTextureAtlas mBitmapTextureAtlas1, mFontTexture;
+    private BitmapTextureAtlas mBitmapTextureAtlas3, mFontTexture;
     private Font mFont;
-    private TiledTextureRegion mFaceTextureRegion1;
+    private TiledTextureRegion mFaceTextureRegion3;
 
     public void killMe(){
         this.finish();
@@ -37,9 +38,9 @@ public class LoadPage extends SimpleBaseGameActivity {
     @Override
     protected void onCreateResources() {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-        this.mBitmapTextureAtlas1 = new BitmapTextureAtlas( this.getTextureManager(),256, 2048);
-        this.mFaceTextureRegion1 =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas1,getAssets(),"png0.png",0,0,1,8);
-        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas1);
+        this.mBitmapTextureAtlas3 = new BitmapTextureAtlas( this.getTextureManager(),256, 2048);
+        this.mFaceTextureRegion3 =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas3,getAssets(),"png0.png",0,0,1,8);
+        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas3);
 
         this.mFontTexture = new BitmapTextureAtlas( mEngine.getTextureManager(),256, 256);
         this.mFont = new Font(this.getFontManager(),this.mFontTexture,Typeface.create(Typeface.DEFAULT, Typeface.BOLD),48,true,Color.WHITE);
@@ -53,7 +54,7 @@ public class LoadPage extends SimpleBaseGameActivity {
     protected Scene onCreateScene() {
         mScene = new Scene();
         mScene.setBackground(new Background(0f, 0f, 0f));
-        AnimatedSprite pAnime = new AnimatedSprite((WIDTH/4)*3,HEIGHT/2,mFaceTextureRegion1,getVertexBufferObjectManager());
+        AnimatedSprite pAnime = new AnimatedSprite((WIDTH/4)*3,HEIGHT/2,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime.setScale(0.5f);
         mScene.attachChild(pAnime);
         pAnime.animate(300);
@@ -74,4 +75,7 @@ public class LoadPage extends SimpleBaseGameActivity {
 
         return engineOptions;
     }
+
+
+
 }
