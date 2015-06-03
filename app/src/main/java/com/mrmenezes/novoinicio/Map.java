@@ -19,7 +19,6 @@ public class Map {
     private int[] indext;
     private int[][] mat;
     private Text textCollision;
-    private Vector<Text> textTail;
 
 
 
@@ -61,14 +60,7 @@ public class Map {
         textCollision = new Text(216, 0, mFont, "Perdendo",pVertexBufferObjectManager);
         textCollision.setScale(0.6f);
         mScene.attachChild(textCollision);
-        final  Vector<Text>  idtextTail = new Vector<Text>();
-        for (int a = 0;a<nSpriteTail.indexOf(nSpriteTail.lastElement())+1;a++) {
-            idtextTail.addElement(new Text(nSpriteTail.get(a).getX()+96 , nSpriteTail.get(a).getY()+96 , mFont, "" + a, pVertexBufferObjectManager));
-            idtextTail.get(a).setScale(.5f);
-            mScene.attachChild(idtextTail.get(a));
-        }
 
-        this.textTail = idtextTail;
 
 
 
