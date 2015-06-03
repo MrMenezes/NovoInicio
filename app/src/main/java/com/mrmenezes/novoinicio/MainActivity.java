@@ -50,45 +50,9 @@ public class MainActivity extends BaseGameActivity {
     private TiledTextureRegion mFaceTextureRegion3;
 
 
-    protected void loadResources() {
-        BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-        PixelPerfectTextureRegionFactory.setAssetBasePath("gfx/");
-        this.mFontTexture = new BitmapTextureAtlas(mEngine.getTextureManager(), 256, 256);
-
-        this.mFont = new Font(this.getFontManager(), this.mFontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, true, Color.RED);
-
-        this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
-        this.mEngine.getFontManager().loadFont(this.mFont);
-
-        this.mBitmapTextureAtlas1 = new BitmapTextureAtlas(this.getTextureManager(), 2048, 2048);
-        this.mBitmapTextureAtlas2 = new BitmapTextureAtlas(this.getTextureManager(), 2048, 2048);
-
-
-        this.mFaceTextureRegion1 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas1, getAssets(), "pn00.png", 0, 0, 8, 8, 0);
-        this.mFaceTextureRegion2 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas2, getAssets(), "pn22.png", 0, 0, 8, 5, 0);
-
-
-        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas2);
-        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas1);
-
-
-    }
-
-
-    protected void loadScenes() {
-
-
-        mScene = new Scene();
-        mScene.setBackground(new Background(1f, 1f, 1f));
-        int[] list = {16, 88, 24, 48};
-        int[][] matriz = {{0, 0, 0, 0, 0, 0}, {1, 1, 1, 0, 0, 0}, {1, 1, 1, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {0, 0, 1, 1, 1, 0}, {0, 0, 0, 0, 0, 0}};
-        //int[][] matriz = {{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
-        //int[][] matriz = {{0,0,0,0,0,0},{1,1,1,0,0,0},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
-        Map map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
 
 
 
-    }
 
 
     @Override
@@ -113,7 +77,7 @@ public class MainActivity extends BaseGameActivity {
         this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas3);
 
         this.mFontTexture = new BitmapTextureAtlas(mEngine.getTextureManager(), 256, 256);
-        this.mFont = new Font(this.getFontManager(), this.mFontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, true, Color.WHITE);
+        this.mFont = new Font(this.getFontManager(), this.mFontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 96, true, Color.WHITE);
         this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
         this.mEngine.getFontManager().loadFont(this.mFont);
         pOnCreateResourcesCallback.onCreateResourcesFinished();
@@ -145,12 +109,62 @@ public class MainActivity extends BaseGameActivity {
     private void initSplashScene() {
         SplashmScene = new Scene();
         SplashmScene.setBackground(new Background(0f, 0f, 0f));
-        AnimatedSprite pAnime = new AnimatedSprite(WIDTH,HEIGHT/2,mFaceTextureRegion3,getVertexBufferObjectManager());
+        AnimatedSprite pAnime = new AnimatedSprite(304,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime.setScale(0.5f);
         SplashmScene.attachChild(pAnime);
-        pAnime.animate(300);
-        Text textCollision = new Text(WIDTH/2, (HEIGHT/2)+90, mFont, "Carregando",getVertexBufferObjectManager());
+        AnimatedSprite pAnime2 = new AnimatedSprite(pAnime.getX()+64,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
+        pAnime2.setScale(0.5f);
+        SplashmScene.attachChild(pAnime2);
+        AnimatedSprite pAnime3 = new AnimatedSprite(pAnime2.getX()+64 ,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
+        pAnime3.setScale(0.5f);
+        SplashmScene.attachChild(pAnime3);
+        Text textCollision = new Text(240, (HEIGHT/3), mFont, "Carregando",getVertexBufferObjectManager());
+        textCollision.setScale(0.5f);
         SplashmScene.attachChild(textCollision);
+        Text textTetrisGram = new Text(240, 90, mFont, "TetrisGram",getVertexBufferObjectManager());
+
+        SplashmScene.attachChild(textTetrisGram);
     }
+
+    protected void loadResources() {
+        BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+        PixelPerfectTextureRegionFactory.setAssetBasePath("gfx/");
+        this.mFontTexture = new BitmapTextureAtlas(mEngine.getTextureManager(), 256, 256);
+
+        this.mFont = new Font(this.getFontManager(), this.mFontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, true, Color.RED);
+
+        this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
+        this.mEngine.getFontManager().loadFont(this.mFont);
+
+        this.mBitmapTextureAtlas1 = new BitmapTextureAtlas(this.getTextureManager(), 2048, 2048);
+        this.mBitmapTextureAtlas2 = new BitmapTextureAtlas(this.getTextureManager(), 2048, 2048);
+
+
+        this.mFaceTextureRegion1 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas1, getAssets(), "pn00.png", 0, 0, 8, 8, 0);
+        this.mFaceTextureRegion2 = PixelPerfectTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas2, getAssets(), "pn22.png", 0, 0, 8, 5, 0);
+
+
+        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas2);
+        this.mEngine.getTextureManager().loadTexture(this.mBitmapTextureAtlas1);
+
+
+    }
+    protected void loadScenes() {
+
+
+        mScene = new Scene();
+        mScene.setBackground(new Background(1f, 1f, 1f));
+        Text textTetrisGram = new Text(356, 45, mFont, "TetrisGram",getVertexBufferObjectManager());
+
+        mScene.attachChild(textTetrisGram);
+        int[] list = {16, 88, 24, 48};
+        int[][] matriz = {{0, 0, 0, 0, 0, 0}, {1, 1, 1, 0, 0, 0}, {1, 1, 1, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {0, 0, 1, 1, 1, 0}, {0, 0, 0, 0, 0, 0}};
+        //int[][] matriz = {{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
+        //int[][] matriz = {{0,0,0,0,0,0},{1,1,1,0,0,0},{1,1,1,1,1,1},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
+        Map map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
+
+    }
+
+
 
 }

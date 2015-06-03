@@ -58,7 +58,8 @@ public class Map {
 
 
         this.indext = index;
-        textCollision = new Text(240, 0, mFont, "Perdendo",pVertexBufferObjectManager);
+        textCollision = new Text(200, 0, mFont, "Perdendo",pVertexBufferObjectManager);
+        textCollision.setScale(0.6f);
         mScene.attachChild(textCollision);
         final  Vector<Text>  idtextTail = new Vector<Text>();
         for (int a = 0;a<nSpriteTail.indexOf(nSpriteTail.lastElement())+1;a++) {
