@@ -58,7 +58,7 @@ public class Map {
 
 
         this.indext = index;
-        textCollision = new Text(256, 0, mFont, "Perdendo",pVertexBufferObjectManager);
+        textCollision = new Text(216, 0, mFont, "Perdendo",pVertexBufferObjectManager);
         textCollision.setScale(0.6f);
         mScene.attachChild(textCollision);
         final  Vector<Text>  idtextTail = new Vector<Text>();
