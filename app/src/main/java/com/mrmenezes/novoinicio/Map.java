@@ -19,6 +19,7 @@ public class Map {
     private int[] indext;
     private int[][] mat;
     private Text textCollision;
+    public boolean ganhando = false;
 
 
 
@@ -70,10 +71,12 @@ public class Map {
     public void upClick(){
 
         textCollision.setText("Perdendo");
+        this.ganhando = false;
         for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
             if (!((Sprits) this.nSprite.get(b)).colidTotal)return;
         }
         textCollision.setText("Ganhou");
+        this.ganhando = true;
 
 
 

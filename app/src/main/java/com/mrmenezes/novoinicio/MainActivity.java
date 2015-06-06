@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
@@ -20,14 +21,17 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
 
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegionFactory;
 
 import android.util.Log;
+import android.view.MotionEvent;
 
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.IGameInterface;
@@ -43,11 +47,12 @@ public class MainActivity extends BaseGameActivity {
     private static final int HEIGHT = 800;
 
     private Camera mCamera;
-    private Scene mScene,SplashmScene;
+    private Scene mScene,SplashmScene,menumScene;
     private BitmapTextureAtlas mBitmapTextureAtlas1, mBitmapTextureAtlas2, mBitmapTextureAtlas3, mFontTexture;
     private Font mFont;
     private PixelPerfectTiledTextureRegion mFaceTextureRegion1, mFaceTextureRegion2;
     private TiledTextureRegion mFaceTextureRegion3;
+    private Map map;
 
 
 
@@ -97,8 +102,8 @@ public class MainActivity extends BaseGameActivity {
             public void onTimePassed(final TimerHandler pTimerHandler) {
                 mEngine.unregisterUpdateHandler(pTimerHandler);
                 loadResources();
-                loadScenes();
-                mEngine.setScene(mScene);
+                loadMenu();
+                mEngine.setScene(menumScene);
             }
         }));
         pOnPopulateSceneCallback.onPopulateSceneFinished();
@@ -110,12 +115,15 @@ public class MainActivity extends BaseGameActivity {
         AnimatedSprite pAnime = new AnimatedSprite(304,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime.setScale(0.5f);
         SplashmScene.attachChild(pAnime);
+        pAnime.animate(100);
         AnimatedSprite pAnime2 = new AnimatedSprite(pAnime.getX()+64,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime2.setScale(0.5f);
         SplashmScene.attachChild(pAnime2);
+        pAnime2.animate(200);
         AnimatedSprite pAnime3 = new AnimatedSprite(pAnime2.getX()+64 ,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime3.setScale(0.5f);
         SplashmScene.attachChild(pAnime3);
+        pAnime3.animate(300);
         Text textCollision = new Text(240, (HEIGHT/3), mFont, "Carregando",getVertexBufferObjectManager());
         textCollision.setScale(0.5f);
         SplashmScene.attachChild(textCollision);
@@ -148,7 +156,7 @@ public class MainActivity extends BaseGameActivity {
 
     }
     protected void loadScenes() {
-
+        mEngine.registerUpdateHandler(new FPSLogger());
 
         mScene = new Scene();
         mScene.setBackground(new Background(1f, 1f, 1f));
@@ -159,7 +167,69 @@ public class MainActivity extends BaseGameActivity {
         Tail t =  tR.getRMatriz();
         int[][] matriz = t.getTabuleiro();
         int[] list = tR.getRList(t);
-        Map map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
+        this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
+        mScene.registerUpdateHandler(new IUpdateHandler() {
+            @Override
+            public void onUpdate(float pSecondsElapsed) {
+                if (map.ganhando){
+                    loadMenu();
+                    mEngine.setScene(menumScene);
+                }
+            }
+
+            @Override
+            public void reset() {
+
+            }
+        });
+    }
+
+    public void loadMenu()  {
+        menumScene = new Scene();
+        menumScene.setBackground(new Background(0f, 0f, 0f));
+
+        AnimatedSprite pAnime2 = new AnimatedSprite(360,(HEIGHT/3)-128,mFaceTextureRegion3,getVertexBufferObjectManager());
+
+        AnimatedSprite pAnime = new AnimatedSprite(360,pAnime2.getY()+128,mFaceTextureRegion3,getVertexBufferObjectManager());
+        menumScene.attachChild(pAnime);
+        AnimatedSprite pAnime3 = new AnimatedSprite(360,pAnime.getY()+128,mFaceTextureRegion3,getVertexBufferObjectManager());
+        menumScene.attachChild(pAnime3);
+
+        pAnime.setCurrentTileIndex(2);
+        pAnime.setRotation(90f);
+
+        pAnime3.setRotation(90f);
+        pAnime3.setCurrentTileIndex(4);
+
+        pAnime2.setRotation(90f);
+        pAnime2.setCurrentTileIndex(2);
+        menumScene.attachChild(pAnime2);
+
+
+
+        Text textInicial = new Text(420,(HEIGHT/3)-32, mFont, "Iniciar",getVertexBufferObjectManager()){
+            public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+
+
+                loadScenes();
+                mEngine.setScene(mScene);
+
+                return true;
+
+            }
+        };
+
+        menumScene.attachChild(textInicial);
+        menumScene.registerTouchArea(textInicial);
+        Text textSobre = new Text(425, (HEIGHT/3)+96, mFont, "Sobre",getVertexBufferObjectManager());
+        menumScene.attachChild(textSobre);
+
+        Text textRecordes = new Text(390, (HEIGHT/3)+224, mFont, "Recordes",getVertexBufferObjectManager());
+        menumScene.attachChild(textRecordes);
+        Text textTetrisGram = new Text(360, 45, mFont, "TetrisGram",getVertexBufferObjectManager());
+        menumScene.attachChild(textTetrisGram);
+        textTetrisGram.setScale(2.f);
+
 
     }
 
