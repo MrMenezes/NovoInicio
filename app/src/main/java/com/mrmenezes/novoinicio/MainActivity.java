@@ -53,7 +53,9 @@ public class MainActivity extends BaseGameActivity {
     private PixelPerfectTiledTextureRegion mFaceTextureRegion1, mFaceTextureRegion2;
     private TiledTextureRegion mFaceTextureRegion3;
     private Map map;
-
+    private int tempo;
+    private Text textTime;
+    private boolean perdeu=false,primeira=true;
 
 
 
@@ -98,14 +100,27 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
-        mEngine.registerUpdateHandler(new TimerHandler(3f, new ITimerCallback() {
-            public void onTimePassed(final TimerHandler pTimerHandler) {
-                mEngine.unregisterUpdateHandler(pTimerHandler);
-                loadResources();
-                loadMenu();
-                mEngine.setScene(menumScene);
-            }
-        }));
+        runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              loadResources();
+                              loadMenu();
+                              mEngine.setScene(menumScene);
+
+                           }
+
+
+                      });
+
+            /*   mEngine.registerUpdateHandler(new TimerHandler(1f, new ITimerCallback() {
+                    public void onTimePassed(final TimerHandler pTimerHandler) {
+                        mEngine.unregisterUpdateHandler(pTimerHandler);
+
+                        loadResources();
+                        loadMenu();
+                        mEngine.setScene(menumScene);
+                    }
+                }));*/
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
@@ -119,11 +134,11 @@ public class MainActivity extends BaseGameActivity {
         AnimatedSprite pAnime2 = new AnimatedSprite(pAnime.getX()+64,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime2.setScale(0.5f);
         SplashmScene.attachChild(pAnime2);
-        pAnime2.animate(200);
+        pAnime2.animate(100);
         AnimatedSprite pAnime3 = new AnimatedSprite(pAnime2.getX()+64 ,HEIGHT/3,mFaceTextureRegion3,getVertexBufferObjectManager());
         pAnime3.setScale(0.5f);
         SplashmScene.attachChild(pAnime3);
-        pAnime3.animate(300);
+        pAnime3.animate(100);
         Text textCollision = new Text(240, (HEIGHT/3), mFont, "Carregando",getVertexBufferObjectManager());
         textCollision.setScale(0.5f);
         SplashmScene.attachChild(textCollision);
@@ -167,13 +182,27 @@ public class MainActivity extends BaseGameActivity {
         Tail t =  tR.getRMatriz();
         int[][] matriz = t.getTabuleiro();
         int[] list = tR.getRList(t);
+        this.textTime = new Text(216, 0, mFont, "0",getVertexBufferObjectManager());
+        textTime.setScale(0.6f);
+        mScene.attachChild(textTime);
         this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
         mScene.registerUpdateHandler(new IUpdateHandler() {
             @Override
             public void onUpdate(float pSecondsElapsed) {
-                if (map.ganhando){
+                tempo++;
+                if (map.ganhando ){
                     loadMenu();
                     mEngine.setScene(menumScene);
+                    tempo=0;
+
+                }
+                if(tempo > 3600){
+                    perdeu=true;
+                    loadMenu();
+                    mEngine.setScene(menumScene);
+                    tempo=0;
+
+
                 }
             }
 
@@ -186,10 +215,11 @@ public class MainActivity extends BaseGameActivity {
     public void onBackPressed() {
         if (mEngine.getScene().equals(mScene)){
             loadMenu();
-        mEngine.setScene(menumScene);
+            mEngine.setScene(menumScene);
+            tempo=0;
+            perdeu=true;
 
-
-    }return;
+        }return;
     }
 
     public void loadMenu()  {
@@ -236,7 +266,23 @@ public class MainActivity extends BaseGameActivity {
         menumScene.attachChild(textRecordes);
         Text textTetrisGram = new Text(360, 45, mFont, "TetrisGram",getVertexBufferObjectManager());
         menumScene.attachChild(textTetrisGram);
+        Text loser = new Text(360, HEIGHT-150, mFont, "Você Perdeu",getVertexBufferObjectManager());
+
         textTetrisGram.setScale(2.f);
+        textTetrisGram.setScale(2.f);
+        if(perdeu && !primeira){
+            loser.setText("Perdeu!!"+tempo/60);
+            menumScene.attachChild(loser);
+
+        }else{
+            if(!primeira && map.ganhando){
+                loser.setText("WIN!!"+tempo/60);
+                menumScene.attachChild(loser);
+
+            }
+        }
+        primeira=false;
+        perdeu=false;
 
 
     }

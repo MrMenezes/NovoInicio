@@ -24,6 +24,7 @@ public class Map {
 
 
 
+
     public Map(Font mFont, int dificuldade_,Scene mScene,int[] index,int[][] matriz, PixelPerfectTiledTextureRegion pTiledTextureRegion1,PixelPerfectTiledTextureRegion pTiledTextureRegion2, VertexBufferObjectManager pVertexBufferObjectManager) {
 
 
@@ -58,9 +59,7 @@ public class Map {
 
 
         this.indext = index;
-        textCollision = new Text(216, 0, mFont, "Perdendo",pVertexBufferObjectManager);
-        textCollision.setScale(0.6f);
-        mScene.attachChild(textCollision);
+
 
 
 
@@ -70,12 +69,12 @@ public class Map {
 
     public void upClick(){
 
-        textCollision.setText("Perdendo");
+
         this.ganhando = false;
         for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
             if (!((Sprits) this.nSprite.get(b)).colidTotal)return;
         }
-        textCollision.setText("Ganhou");
+
         this.ganhando = true;
 
 
