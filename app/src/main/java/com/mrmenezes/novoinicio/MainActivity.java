@@ -183,6 +183,14 @@ public class MainActivity extends BaseGameActivity {
             }
         });
     }
+    public void onBackPressed() {
+        if (mEngine.getScene().equals(mScene)){
+            loadMenu();
+        mEngine.setScene(menumScene);
+
+
+    }return;
+    }
 
     public void loadMenu()  {
         menumScene = new Scene();
