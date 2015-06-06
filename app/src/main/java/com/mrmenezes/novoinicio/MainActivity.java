@@ -106,7 +106,6 @@ public class MainActivity extends BaseGameActivity {
                               loadResources();
                               loadMenu();
                               mEngine.setScene(menumScene);
-
                            }
 
 
