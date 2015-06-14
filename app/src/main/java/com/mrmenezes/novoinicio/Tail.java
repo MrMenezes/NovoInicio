@@ -7,7 +7,7 @@ public class Tail {
     private int[][] tabuleiro;
     private int[][] peças;
 
-    public Tail(){
+    public Tail() {
 
     }
 
