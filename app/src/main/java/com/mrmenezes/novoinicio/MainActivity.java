@@ -1,33 +1,40 @@
 package com.mrmenezes.novoinicio;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegionFactory;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
-
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegionFactory;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class MainActivity extends BaseGameActivity {
@@ -41,9 +48,18 @@ public class MainActivity extends BaseGameActivity {
     private PixelPerfectTiledTextureRegion mFaceTextureRegion1, mFaceTextureRegion2;
     private TiledTextureRegion mFaceTextureRegion3;
     private Map map;
-    private int time;
+    private int time, score;
     private Text textTime;
     private boolean perdeu = false, primeira = true;
+    private String nome;
+    private Music myMusic2, myMusic;
+    private DataBaseHelper db;
+    private List<Jogador> collectiontBestJogadores = new ArrayList<Jogador>();
+
+    private void iniBd() {
+        db = new DataBaseHelper(this);
+        collectiontBestJogadores = db.selectAllJogador();
+    }
 
     @Override
     public EngineOptions onCreateEngineOptions() {
@@ -53,6 +69,8 @@ public class MainActivity extends BaseGameActivity {
                 ScreenOrientation.PORTRAIT_FIXED, new
                 FillResolutionPolicy(),
                 mCamera);
+        engineOptions.getAudioOptions().setNeedsMusic(true);
+        engineOptions.getAudioOptions().setNeedsSound(true);
 
         engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
 
@@ -74,11 +92,13 @@ public class MainActivity extends BaseGameActivity {
         this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
         this.mEngine.getFontManager().loadFont(this.mFont);
 
+
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
     @Override
     public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
+
         //Iniciando o Splash de carregamento
         createSplashScene();
         pOnCreateSceneCallback.onCreateSceneFinished(this.SplashmScene);
@@ -105,6 +125,7 @@ public class MainActivity extends BaseGameActivity {
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
+    //Criando Splash
     private void createSplashScene() {
         //Criando a Scene do Splash
         SplashmScene = new Scene();
@@ -133,7 +154,20 @@ public class MainActivity extends BaseGameActivity {
         SplashmScene.attachChild(textTetrisGram);
     }
 
+    //Carregamento dos Sprites
     protected void loadResources() {
+        iniBd();
+        try {
+            myMusic = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this, "sfx/tetris.ogg");
+            myMusic.setLooping(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            myMusic2 = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this, "sfx/palmas.ogg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //Carregando Resources do Jogo
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
         PixelPerfectTextureRegionFactory.setAssetBasePath("gfx/");
@@ -159,6 +193,7 @@ public class MainActivity extends BaseGameActivity {
 
     }
 
+    //Fase1
     protected void createGame() {
         //Carregando Secena do jogo
         mEngine.registerUpdateHandler(new FPSLogger());
@@ -167,27 +202,32 @@ public class MainActivity extends BaseGameActivity {
         mScene.setBackground(new Background(0f, 0f, 0f));
         Text textTetrisGram = new Text(420, 90, mFont, "TetrisGram", getVertexBufferObjectManager());
         textTetrisGram.setScale(2.f);
-
         mScene.attachChild(textTetrisGram);
         TailRandomize tR = new TailRandomize();
-        Tail t = tR.getRMatriz();
+        Tail t = tR.getRMatriz(TailRandomize.DIFICULDADE_NOOB);
         int[][] matriz = t.getTabuleiro();
-        int[] list = tR.getRList(t);
-        this.textTime = new Text(216, 0, mFont, "0", getVertexBufferObjectManager());
+        int[] list = tR.getRList(t, TailRandomize.DIFICULDADE_NOOB);
+
+        this.textTime = new Text(300, 45, mFont, "60", getVertexBufferObjectManager());
         textTime.setScale(0.6f);
         mScene.attachChild(textTime);
+        time = 3600;
         this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
         mScene.registerUpdateHandler(new IUpdateHandler() {
             @Override
             public void onUpdate(float pSecondsElapsed) {
-                time++;
-                if (map.ganhando) {
-                    createMenu();
-                    mEngine.setScene(menumScene);
+                time = time - 1;
+                if (time % 60 == 0)
+                    textTime.setText(Integer.toString(time / 60));
+                if (map.getGanhou()) {
+                    score = time;
                     time = 0;
+                    createGame2();
+
+                    mEngine.setScene(mScene);
 
                 }
-                if (time > 3600) {
+                if (time < 0) {
                     perdeu = true;
                     createMenu();
                     mEngine.setScene(menumScene);
@@ -204,11 +244,161 @@ public class MainActivity extends BaseGameActivity {
         });
     }
 
+    //Fase2
+    protected void createGame2() {
+        //Carregando Secena do jogo
+        mEngine.registerUpdateHandler(new FPSLogger());
+
+        mScene = new Scene();
+        mScene.setBackground(new Background(0f, 0f, 0f));
+        Text textTetrisGram = new Text(420, 90, mFont, "TetrisGram", getVertexBufferObjectManager());
+        textTetrisGram.setScale(2.f);
+
+        mScene.attachChild(textTetrisGram);
+        TailRandomize tR = new TailRandomize();
+        Tail t = tR.getRMatriz(TailRandomize.DIFICULDADE_NORMAL);
+        int[][] matriz = t.getTabuleiro();
+        int[] list = tR.getRList(t, TailRandomize.DIFICULDADE_NORMAL);
+
+        this.textTime = new Text(300, 45, mFont, "60", getVertexBufferObjectManager());
+        textTime.setScale(0.6f);
+        mScene.attachChild(textTime);
+        time = 3600;
+        this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
+        mScene.registerUpdateHandler(new IUpdateHandler() {
+            @Override
+            public void onUpdate(float pSecondsElapsed) {
+                time = time - 1;
+                if (time % 60 == 0)
+                    textTime.setText(Integer.toString(time / 60));
+                if (map.getGanhou()) {
+                    score += time;
+                    time = 0;
+                    createGame3();
+
+                    mEngine.setScene(mScene);
+                }
+                if (time < 0) {
+                    perdeu = true;
+                    createMenu();
+                    mEngine.setScene(menumScene);
+                    time = 0;
+
+
+                }
+            }
+
+            @Override
+            public void reset() {
+
+            }
+        });
+    }
+
+    //Fase3
+    protected void createGame3() {
+        //Carregando Secena do jogo
+        mEngine.registerUpdateHandler(new FPSLogger());
+
+        mScene = new Scene();
+        mScene.setBackground(new Background(0f, 0f, 0f));
+        Text textTetrisGram = new Text(420, 90, mFont, "TetrisGram", getVertexBufferObjectManager());
+        textTetrisGram.setScale(2.f);
+
+        mScene.attachChild(textTetrisGram);
+        TailRandomize tR = new TailRandomize();
+        Tail t = tR.getRMatriz(TailRandomize.DIFICULDADE_NORMAL);
+        int[][] matriz = t.getTabuleiro();
+        int[] list = tR.getRList(t, TailRandomize.DIFICULDADE_NORMAL);
+
+        this.textTime = new Text(300, 45, mFont, "45", getVertexBufferObjectManager());
+        textTime.setScale(0.6f);
+        mScene.attachChild(textTime);
+        time = 2700;
+        this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
+        mScene.registerUpdateHandler(new IUpdateHandler() {
+            @Override
+            public void onUpdate(float pSecondsElapsed) {
+                time = time - 1;
+                if (time % 60 == 0)
+                    textTime.setText(Integer.toString(time / 60));
+                if (map.getGanhou()) {
+                    perdeu = false;
+                    time = 0;
+                    createMenu();
+                    mEngine.setScene(menumScene);
+
+
+                }
+                if (time < 0) {
+                    perdeu = true;
+                    createMenu();
+                    mEngine.setScene(menumScene);
+                    time = 0;
+
+
+                }
+            }
+
+            @Override
+            public void reset() {
+
+            }
+        });
+    }
+
+    //Dialog de cadasttro
+    protected void showInputDialog(Text lose) {
+        final Text loser = lose;
+        myMusic2.play();
+        myMusic2.setLooping(false);
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
+                View promptView = layoutInflater.inflate(R.layout.input_dialog, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setView(promptView);
+
+                final EditText editText = (EditText) promptView.findViewById(R.id.edittext);
+                // setup a dialog window
+                alertDialogBuilder.setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                nome = editText.getText().toString();
+                                loser.setText(nome + ": " + Integer.toString(165 - (score / 60)));
+                                menumScene.attachChild(loser);
+                                Jogador temp = new Jogador();
+                                temp.setNome(nome);
+                                temp.setPontos(165 - (score / 60));
+
+                                db.insertJogador(temp);
+                                collectiontBestJogadores = db.selectAllJogador();
+                                myMusic2.play();
+
+                            }
+                        })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create an alert dialog
+                AlertDialog alert = alertDialogBuilder.create();
+                alert.show();
+            }
+
+        });
+
+    }
+
+    //Criado o Menu
     public void createMenu() {
         //Criando Scena do Menu
         menumScene = new Scene();
         menumScene.setBackground(new Background(0f, 0f, 0f));
-
+        myMusic.play();
         AnimatedSprite pAnime2 = new AnimatedSprite(360, (HEIGHT / 3) - 128, mFaceTextureRegion3, getVertexBufferObjectManager());
 
         AnimatedSprite pAnime = new AnimatedSprite(360, pAnime2.getY() + 128, mFaceTextureRegion3, getVertexBufferObjectManager());
@@ -250,8 +440,9 @@ public class MainActivity extends BaseGameActivity {
         menumScene.registerTouchArea(textSobre);
         menumScene.attachChild(textSobre);
 
-        Text textRecordes = new Text(440, (HEIGHT / 3) + 224, mFont, "Recordes", getVertexBufferObjectManager()){
+        Text textRecordes = new Text(440, (HEIGHT / 3) + 224, mFont, "Recordes", getVertexBufferObjectManager()) {
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+
                 createRecordes();
                 mEngine.setScene(mSceneRecordes);
                 return true;
@@ -259,6 +450,25 @@ public class MainActivity extends BaseGameActivity {
         };
         menumScene.registerTouchArea(textRecordes);
         menumScene.attachChild(textRecordes);
+
+        Text textSound = new Text(440, (HEIGHT / 3) + 300, mFont, "Sons| On", getVertexBufferObjectManager()) {
+            public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+                if (this.getText().equals("Sons| On")) {
+                    myMusic.setVolume(0);
+                    myMusic2.setVolume(0);
+                    myMusic.pause();
+                    this.setText("Sons|Off");
+                } else {
+                    myMusic.play();
+                    myMusic.setVolume(0.5f);
+                    myMusic2.setVolume(0.5f);
+                    this.setText("Sons| On");
+                }
+                return true;
+            }
+        };
+        menumScene.registerTouchArea(textSound);
+        menumScene.attachChild(textSound);
         Text textTetrisGram = new Text(420, 90, mFont, "TetrisGram", getVertexBufferObjectManager());
         menumScene.attachChild(textTetrisGram);
         Text loser = new Text(440, HEIGHT - 150, mFont, "Você Perdeu", getVertexBufferObjectManager());
@@ -266,22 +476,29 @@ public class MainActivity extends BaseGameActivity {
         textTetrisGram.setScale(2.f);
         textTetrisGram.setScale(2.f);
         //Verificando Se  o Jogador Ganhou ou Perdeu
-        if (perdeu && !primeira) {
+        if (perdeu && !primeira)
+
+        {
             loser.setText("Perdeu");
             menumScene.attachChild(loser);
 
-        } else {
-            if (!primeira && map.ganhando) {
-                loser.setText("WIN!!" + time / 60);
-                menumScene.attachChild(loser);
+        } else
+
+        {
+            if (!primeira && map.getGanhou()) {
+                showInputDialog(loser);
+
 
             }
         }
+
         primeira = false;
         perdeu = false;
 
 
     }
+
+    //Criada Scena do Sobre
 
     protected void createSobre() {
         //Carregando Secena do jogo
@@ -291,21 +508,43 @@ public class MainActivity extends BaseGameActivity {
         mSceneSobre.setBackground(new Background(0f, 0f, 0f));
         Text textTetrisGram = new Text(460, 90, mFont, "Sobre", getVertexBufferObjectManager());
         textTetrisGram.setScale(2.f);
-
         mSceneSobre.attachChild(textTetrisGram);
+        Text textCriado = new Text(260, 460, mFont, "Criado por:\n\t Erick Menezes\n\t sr.tama@outlook.com", getVertexBufferObjectManager());
+        mSceneSobre.attachChild(textCriado);
 
     }
 
+    //Criada  Scena de Recordes
     protected void createRecordes() {
         //Carregando Secena do jogo
         mEngine.registerUpdateHandler(new FPSLogger());
-
         mSceneRecordes = new Scene();
         mSceneRecordes.setBackground(new Background(0f, 0f, 0f));
         Text textTetrisGram = new Text(440, 90, mFont, "Recordes", getVertexBufferObjectManager());
         textTetrisGram.setScale(2.f);
-
         mSceneRecordes.attachChild(textTetrisGram);
+        Text textName = new Text(340, 186, mFont, "Jogador", getVertexBufferObjectManager());
+        textTetrisGram.setScale(1.2f);
+        Text textPont = new Text(540, 186, mFont, "Tempo", getVertexBufferObjectManager());
+        textTetrisGram.setScale(1.2f);
+        mSceneRecordes.attachChild(textName);
+        mSceneRecordes.attachChild(textPont);
+        int cont = 1;
+        if (!(collectiontBestJogadores.size() == 0)) {
+            Collections.sort(collectiontBestJogadores);
+            for (Jogador jogador : collectiontBestJogadores) {
+
+                Text textNamej = new Text(340, 186 + (cont * 90), mFont, jogador.getNome().toString(), getVertexBufferObjectManager());
+                Text textPontj = new Text(540, 186 + (cont * 90), mFont, Integer.toString(jogador.getPontos()), getVertexBufferObjectManager());
+                mSceneRecordes.attachChild(textNamej);
+                mSceneRecordes.attachChild(textPontj);
+                cont++;
+                if (cont > 7) {
+                    break;
+                }
+            }
+        }
+
 
     }
 
@@ -328,10 +567,10 @@ public class MainActivity extends BaseGameActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Sair do TetrisGram")
                     .setMessage("Deseja realmente sair?")
-                    .setPositiveButton("Sim", new DialogInterface.OnClickListener()
-                    {
+                    .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            myMusic.stop();
                             finish();
                         }
 
@@ -339,25 +578,33 @@ public class MainActivity extends BaseGameActivity {
                     .setNegativeButton("Não", null)
                     .show();
 
+
         }
     }
 
     @Override
     protected void onPause() {
+
+        myMusic.pause();
         super.onPause();
     }
 
     @Override
-    protected synchronized void onResume() {
+    protected void onResume() {
+
         super.onResume();
         System.gc();
+
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        db.close();
         if (this.isGameLoaded()) {
+
+            myMusic.stop();
             finish();
             System.exit(0);
         }

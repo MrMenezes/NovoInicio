@@ -1,17 +1,16 @@
 package com.mrmenezes.novoinicio;
 
-import android.util.Log;
 import android.view.MotionEvent;
 
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.Scene;
 import org.andengine.extension.collisions.entity.sprite.PixelPerfectAnimatedSprite;
 import org.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.input.touch.detector.ContinuousHoldDetector;
 import org.andengine.input.touch.detector.HoldDetector;
 import org.andengine.input.touch.detector.HoldDetector.IHoldDetectorListener;
-import org.andengine.entity.scene.IOnSceneTouchListener;
-import org.andengine.entity.scene.Scene;
-import org.andengine.input.touch.detector.ContinuousHoldDetector;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import java.util.Vector;
 

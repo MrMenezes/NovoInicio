@@ -1,7 +1,5 @@
 package com.mrmenezes.novoinicio;
 
-import android.util.Log;
-
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.text.Text;
 import org.andengine.extension.collisions.entity.sprite.PixelPerfectAnimatedSprite;
@@ -20,7 +18,7 @@ public class Map {
     private int[] indext;
     private int[][] mat;
     private Text textCollision;
-    public boolean ganhando = false;
+    private boolean ganhou = false;
 
 
     public Map(Font mFont, int dificuldade_, Scene mScene, int[] index, int[][] matriz, PixelPerfectTiledTextureRegion pTiledTextureRegion1, PixelPerfectTiledTextureRegion pTiledTextureRegion2, VertexBufferObjectManager pVertexBufferObjectManager) {
@@ -58,15 +56,19 @@ public class Map {
 
     }
 
+    public boolean getGanhou() {
+        return ganhou;
+    }
+
     public void upClick() {
 
 
-        this.ganhando = false;
+        this.ganhou = false;
         for (int b = 0; b < nSprite.indexOf(nSprite.lastElement()) + 1; b++) {
             if (!((Sprits) this.nSprite.get(b)).colidTotal) return;
         }
 
-        this.ganhando = true;
+        this.ganhou = true;
 
 
     }
