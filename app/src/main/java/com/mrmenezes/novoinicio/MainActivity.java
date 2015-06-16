@@ -4,6 +4,7 @@ package com.mrmenezes.novoinicio;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
@@ -211,6 +212,9 @@ public class MainActivity extends BaseGameActivity {
         this.textTime = new Text(300, 45, mFont, "60", getVertexBufferObjectManager());
         textTime.setScale(0.6f);
         mScene.attachChild(textTime);
+        Text textTime2 = new Text(245, 45, mFont, "Tempo:", getVertexBufferObjectManager());
+        textTime2.setScale(0.6f);
+        mScene.attachChild(textTime2);
         time = 3600;
         this.map = new Map(mFont, Sprits.NORMAL, mScene, list, matriz, this.mFaceTextureRegion1, this.mFaceTextureRegion2, getVertexBufferObjectManager());
         mScene.registerUpdateHandler(new IUpdateHandler() {
@@ -403,12 +407,20 @@ public class MainActivity extends BaseGameActivity {
 
         AnimatedSprite pAnime = new AnimatedSprite(360, pAnime2.getY() + 128, mFaceTextureRegion3, getVertexBufferObjectManager());
         menumScene.attachChild(pAnime);
+
         AnimatedSprite pAnime3 = new AnimatedSprite(360, pAnime.getY() + 128, mFaceTextureRegion3, getVertexBufferObjectManager());
         menumScene.attachChild(pAnime3);
+
+        AnimatedSprite pAnime4 = new AnimatedSprite(360, pAnime3.getY() + 128, mFaceTextureRegion3, getVertexBufferObjectManager());
+        menumScene.attachChild(pAnime4);
 
         pAnime.setCurrentTileIndex(2);
         pAnime.setColor(Color.PINK);
         pAnime.setRotation(90f);
+
+        pAnime4.setCurrentTileIndex(2);
+        pAnime4.setColor(Color.PINK);
+        pAnime4.setRotation(90f);
 
         pAnime3.setCurrentTileIndex(2);
         pAnime3.setColor(Color.PINK);
@@ -430,7 +442,7 @@ public class MainActivity extends BaseGameActivity {
 
         menumScene.attachChild(textInicial);
         menumScene.registerTouchArea(textInicial);
-        Text textSobre = new Text(455, (HEIGHT / 3) + 96, mFont, "Sobre", getVertexBufferObjectManager()) {
+        Text textSobre = new Text(455, (HEIGHT / 3) - 32 + 128, mFont, "Sobre", getVertexBufferObjectManager()) {
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
                 createSobre();
                 mEngine.setScene(mSceneSobre);
@@ -440,7 +452,7 @@ public class MainActivity extends BaseGameActivity {
         menumScene.registerTouchArea(textSobre);
         menumScene.attachChild(textSobre);
 
-        Text textRecordes = new Text(440, (HEIGHT / 3) + 224, mFont, "Recordes", getVertexBufferObjectManager()) {
+        Text textRecordes = new Text(440, (HEIGHT / 3) - 32 + 256, mFont, "Recordes", getVertexBufferObjectManager()) {
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 
                 createRecordes();
@@ -451,18 +463,20 @@ public class MainActivity extends BaseGameActivity {
         menumScene.registerTouchArea(textRecordes);
         menumScene.attachChild(textRecordes);
 
-        Text textSound = new Text(440, (HEIGHT / 3) + 300, mFont, "Sons| On", getVertexBufferObjectManager()) {
+        Text textSound = new Text(440, (HEIGHT / 3) - 32 + 384, mFont, "Sons| On", getVertexBufferObjectManager()) {
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-                if (this.getText().equals("Sons| On")) {
-                    myMusic.setVolume(0);
-                    myMusic2.setVolume(0);
-                    myMusic.pause();
-                    this.setText("Sons|Off");
-                } else {
-                    myMusic.play();
-                    myMusic.setVolume(0.5f);
-                    myMusic2.setVolume(0.5f);
-                    this.setText("Sons| On");
+                if ((MotionEvent.ACTION_MASK == TouchEvent.ACTION_DOWN) || (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN)) {
+                    if (this.getText().equals("Sons| On")) {
+                        myMusic.setVolume(0);
+                        myMusic2.setVolume(0);
+                        myMusic.pause();
+                        this.setText("Sons|Off");
+                    } else {
+                        myMusic.play();
+                        myMusic.setVolume(0.5f);
+                        myMusic2.setVolume(0.5f);
+                        this.setText("Sons| On");
+                    }
                 }
                 return true;
             }
@@ -471,7 +485,7 @@ public class MainActivity extends BaseGameActivity {
         menumScene.attachChild(textSound);
         Text textTetrisGram = new Text(420, 90, mFont, "TetrisGram", getVertexBufferObjectManager());
         menumScene.attachChild(textTetrisGram);
-        Text loser = new Text(440, HEIGHT - 150, mFont, "Você Perdeu", getVertexBufferObjectManager());
+        Text loser = new Text(440, textSound.getHeight() + 512, mFont, "Você Perdeu", getVertexBufferObjectManager());
 
         textTetrisGram.setScale(2.f);
         textTetrisGram.setScale(2.f);
@@ -479,7 +493,7 @@ public class MainActivity extends BaseGameActivity {
         if (perdeu && !primeira)
 
         {
-            loser.setText("Perdeu");
+            loser.setText("Você Perdeu");
             menumScene.attachChild(loser);
 
         } else
